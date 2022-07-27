@@ -7,10 +7,8 @@ import re
 import yaml
 import json
 
-from behave import given
-from namespace import Namespace
+from behave import given, step
 from cluster import Cluster
-from app import App
 from util import substitute_scenario_id
 
 
@@ -31,7 +29,7 @@ def operator_manifest_installed(context, backend_service=None):
 # STEP
 @given(u'The Custom Resource is present')
 @step(u'The Secret is present')
-def apply_yaml(context, user=None):
+def apply_yaml(context):
     cluster = Cluster()
     resource = substitute_scenario_id(context, context.text)
     metadata = yaml.full_load(resource)["metadata"]
@@ -43,8 +41,7 @@ def apply_yaml(context, user=None):
             ns = context.namespace.name
         else:
             ns = None
-    output = cluster.apply(resource, ns, user)
+    output = cluster.apply(resource, ns)
     result = re.search(rf'.*{metadata_name}.*(created|unchanged|configured)', output)
     assert result is not None, f"Unable to apply YAML for CR '{metadata_name}': {output}"
     return metadata
-

@@ -56,6 +56,7 @@ def sbr_is_applied(context, user=None):
     context.bindings[binding.name] = binding
     context.sb_secret = ""
 
+
 @step(u'Service Binding becomes ready')
 def operator_is_ready(context, sbr_name=None):
     if sbr_name is None:
