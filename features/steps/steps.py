@@ -45,3 +45,10 @@ def apply_yaml(context):
     result = re.search(rf'.*{metadata_name}.*(created|unchanged|configured)', output)
     assert result is not None, f"Unable to apply YAML for CR '{metadata_name}': {output}"
     return metadata
+
+
+@step(u'Debug print deployment "{deployment_name}"')
+def debug_print(context, deployment_name):
+    cluster = Cluster()
+    name = substitute_scenario_id(context, deployment_name)
+    print(cluster.describe_deployment(name, context.namespace.name))

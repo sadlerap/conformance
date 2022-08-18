@@ -183,6 +183,7 @@ Feature: Bind workload to provisioned service
               name: $scenario_id
         """
     Then Service Binding becomes ready
+    And Debug print deployment "$scenario_id"
     And Content of file "/bindings/external/$scenario_id/username" in workload pod is
         """
         foo

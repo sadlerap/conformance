@@ -206,3 +206,8 @@ spec:
         output, exit_status = self.cmd.run(f'{ctx.cli} {cmd} -n {namespace}')
         assert exit_status == 0, "Exit should be zero"
         return output
+
+    def describe_deployment(self, name, namespace):
+        output, exit_status = self.cmd.run(f'{ctx.cli} describe -n {namespace} deployments.apps {name}')
+        assert exit_status == 0, f"Unable to find deployment {name}"
+        return output
