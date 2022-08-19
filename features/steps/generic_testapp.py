@@ -33,7 +33,7 @@ class GenericTestApp(App):
         return resp.text
 
     def set_label(self, label):
-        self.kubernetes.set_label(self.name, label, self.namespace)
+        self.cluster.set_label(self.name, label, self.namespace)
 
 
 @step(u'Generic test application is running')
@@ -41,9 +41,7 @@ class GenericTestApp(App):
 def is_running(context, bindingRoot=None):
     application_name = substitute_scenario_id(context)
     application = GenericTestApp(application_name, context.namespace.name)
-    if not application.is_running():
-        print("application is not running, trying to import it")
-        application.install(bindingRoot=bindingRoot)
+    application.install(bindingRoot=bindingRoot)
     context.application = application
 
 @step(u'Content of file "{file_path}" in workload pod is')
