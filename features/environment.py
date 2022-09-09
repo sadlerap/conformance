@@ -31,5 +31,6 @@ def before_all(_context):
 
 def before_scenario(_context, _scenario):
     _context.bindings = dict()
+    _context.workloads = dict()
     output, code = cmd.run(f'{ctx.cli} get ns default -o jsonpath="{{.metadata.name}}"')
     assert code == 0, f"Checking connection to OS cluster by getting the 'default' project failed: {output}"

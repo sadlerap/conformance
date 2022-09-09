@@ -26,7 +26,6 @@ def operator_manifest_installed(context, backend_service=None):
         _ = cluster.apply_yaml_file(os.path.join(os.getcwd(), "resources/", backend_service + ".operator.manifest.yaml"), namespace=ns)
 
 
-# STEP
 @given(u'The Custom Resource is present')
 @step(u'The Secret is present')
 def apply_yaml(context):
