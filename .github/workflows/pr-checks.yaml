@@ -34,6 +34,6 @@ jobs:
 
         # install the reference implementation
         kapp deploy -y -a cert-manager -f https://github.com/cert-manager/cert-manager/releases/download/v1.9.1/cert-manager.yaml
-        kapp deploy -y -a servicebinding-runtime -f https://github.com/servicebinding/runtime/releases/download/v0.1.1/servicebinding-runtime-v0.1.1.yaml
+        kapp deploy -y -a servicebinding-runtime -f https://github.com/servicebinding/runtime/releases/download/v0.2.0/servicebinding-runtime-v0.2.0.yaml
     - name: Conformance tests
       run: .github/resources/run_ci.sh
