@@ -1,4 +1,5 @@
 from app import App
+import command
 import requests
 import json
 import polling2
@@ -10,6 +11,7 @@ from string import Template
 class GenericTestApp(App):
 
     deployment_name_pattern = "{name}"
+    bindingRoot = ""
 
     def __init__(self, name, namespace, app_image="ghcr.io/servicebinding/conformance/generic-test-app:main"):
         super().__init__(name, namespace, app_image, "8080")
@@ -27,8 +29,9 @@ class GenericTestApp(App):
         return pattern.format(name=self.name)
 
     def get_file_value(self, file_path):
-        resp = polling2.poll(lambda: requests.get(url=f"http://{self.route_url}{file_path}"),
-                             check_success=lambda r: r.status_code == 200, step=5, timeout=400, ignore_exceptions=(requests.exceptions.ConnectionError,))
+        resp = polling2.poll(lambda: requests.get(url=debug(f"http://{self.route_url}{file_path}")),
+                             check_success=lambda r: r.status_code == 200, step=1, timeout=400,
+                             ignore_exceptions=(requests.exceptions.ConnectionError,))
         print(f'file endpoint response: {resp.text} code: {resp.status_code}')
         return resp.text
 
@@ -62,8 +65,10 @@ def is_running(context, name=None, bindingRoot=None, label=None):
 @step(u'Content of file "{file_path}" in workload pod is')
 def check_file_value(context, file_path):
     value = Template(context.text.strip()).substitute(NAMESPACE=context.namespace.name)
-    resource = substitute_scenario_id(context, file_path)
-    polling2.poll(lambda: context.workload.get_file_value(resource) == value, step=5, timeout=400)
+    resource = debug(substitute_scenario_id(context, file_path))
+    polling2.poll(lambda: context.workload.get_file_value(resource) == value,
+                  step=5, timeout=400,
+                  ignore_exceptions=(requests.exceptions.ConnectionError))
 
 @step(u'The application env var "{name}" has value "{value}"')
 def check_env_var_value(context, name, value=None):
@@ -85,10 +90,12 @@ def check_binding_value(context, binding_name, key, workload_name=None):
         workload_name = substitute_scenario_id(context)
     else:
         workload_name = substitute_scenario_id(context, workload_name)
-    binding_root = polling2.poll(lambda:
-            context.workloads[workload_name].get_env_var_value("SERVICE_BINDING_ROOT"),
-            step=5, timeout=400)
-    binding_path = binding_root + '/' + substitute_scenario_id(context, binding_name) + '/' + key
+    binding_root = context.workloads[workload_name].bindingRoot
+    if context.workloads[workload_name].bindingRoot == "":
+        binding_root = polling2.poll(lambda: context.workloads[workload_name].get_env_var_value(
+            "SERVICE_BINDING_ROOT"), steps=5, timeout=400)
+        context.workloads[workload_name].bindingRoot = binding_root
+    binding_path = debug(binding_root) + '/' + substitute_scenario_id(context, binding_name) + '/' + key
     check_file_value(context, binding_path)
 
 
@@ -99,3 +106,10 @@ def check_file_unavailable(context, key):
             step=5, timeout=400)
     binding_path = binding_root + '/' + substitute_scenario_id(context, context.workload.name) + '/' + key
     context.workload.assert_file_not_exist(binding_path)
+
+
+def debug(*args):
+    if len(args) == 1:
+        args = args[0]
+    print(args)
+    return args
