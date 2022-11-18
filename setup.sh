@@ -13,4 +13,4 @@ PYTHON_VENV_DIR="${OUTPUT_DIR}/venv"
 
 python3 -m venv "${PYTHON_VENV_DIR}"
 
-"${PYTHON_VENV_DIR}"/bin/pip install --upgrade setuptools pip -r features/requirements.txt
+"${PYTHON_VENV_DIR}"/bin/pip install --upgrade wheel setuptools pip -r features/requirements.txt
